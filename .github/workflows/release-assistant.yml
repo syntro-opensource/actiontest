@@ -8,6 +8,10 @@ jobs:
     name: prepare release
     if: contains( 'release/', GITHUB_REF )
     steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - uses: actions/checkout@v2
       - name: Regenerate Changelog
         uses: heinrichreimer/github-changelog-generator-action@v2.1.1
@@ -25,10 +29,10 @@ jobs:
       - name: Create Pull Request to Master
         uses: peter-evans/create-pull-request@v3
         with:
-          branch: ${{ ref }}
+          branch: ${{ steps.extract_branch.outputs.branch }}
           base: master
       - name: Create Pull Request to Develop
         uses: peter-evans/create-pull-request@v3
         with:
-          branch: ${{ ref }}
+          branch: ${{ steps.extract_branch.outputs.branch }}
           base: develop
