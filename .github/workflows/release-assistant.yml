@@ -25,9 +25,10 @@ jobs:
       - name: Create Pull Request to Master
         uses: peter-evans/create-pull-request@v3
         with:
-          branch: ${{ GITHUB_REF }}
+          branch: ${{ ref }}
           base: master
       - name: Create Pull Request to Develop
         uses: peter-evans/create-pull-request@v3
-        branch: ${{ GITHUB_REF }}
-        base: develop
+        with:
+          branch: ${{ ref }}
+          base: develop
