@@ -1,0 +1,41 @@
+name: Release Assistant
+
+# The release assistant handles changelog update  and merge request generation
+# for a release/* branch
+
+x-changelog-settings: &changelog-settings
+  token: ${{ secrets.GITHUB_TOKEN }}
+  releaseBranch: master
+  pullRequests: true
+  breakingLabel: "**💥Breaking:**"
+  enhancementLabel: "**🍰Enhancements:**"
+  bugsLabel: "**🐞Bugs:**"
+  deprecatedLabel: "**💀Deprecated:**"
+  removedLabel: "**🗑Removed:**"
+  securityLabel: "**🛡Security:**"
+  addSections: '{"dependencies":{"prefix":"**🕸Dependencies:**","labels":["dependencies"]}}'
+
+# no tweakables below this line
+# -------------------------------------------------------
+
+on:
+  create:
+
+jobs:
+  preprelease:
+    name: prepare release
+    if: contains( 'release/', GITHUB_REF )
+    steps:
+      - uses: actions/checkout@v2
+      - name: Regenerate Changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.1.1
+        with:
+          << : *changelog-settings
+      - name: Create Pull Request to Master
+        uses: peter-evans/create-pull-request@v3
+        branch: ${{ GITHUB_REF }}
+        base: master
+      - name: Create Pull Request to Develop
+        uses: peter-evans/create-pull-request@v3
+        branch: ${{ GITHUB_REF }}
+        base: develop
