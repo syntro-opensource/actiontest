@@ -7,7 +7,7 @@ jobs:
   preprelease:
     name: prepare release
     runs-on: ubuntu-latest
-    if: contains( 'release/', GITHUB_REF )
+    if: contains( 'release/', github.ref )
     steps:
       - name: Extract branch name
         shell: bash
