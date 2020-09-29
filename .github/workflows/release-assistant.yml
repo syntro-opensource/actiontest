@@ -24,8 +24,9 @@ jobs:
           addSections: '{"dependencies":{"prefix":"**🕸Dependencies:**","labels":["dependencies"]}}'
       - name: Create Pull Request to Master
         uses: peter-evans/create-pull-request@v3
-        branch: ${{ GITHUB_REF }}
-        base: master
+        with:
+          branch: ${{ GITHUB_REF }}
+          base: master
       - name: Create Pull Request to Develop
         uses: peter-evans/create-pull-request@v3
         branch: ${{ GITHUB_REF }}
