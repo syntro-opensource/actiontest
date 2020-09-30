@@ -21,10 +21,9 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
       - name: 📨 Create pull request
-        uses: peter-evans/create-pull-request@v3
+        uses: thomaseizinger/create-pull-request@1.0.0
         with:
           base: master
-          branch: ${{ steps.extract_branch.outputs.branch }}
       # - env:
       #     BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
       #   run: echo "$BRANCH_NAME"
