@@ -6,8 +6,9 @@ on:
       - release/*
 
 jobs:
-  preprelease:
-    name: prepare release branch
+  update-changelog:
+    name: 📝 Update changelog for release
+    if: ${{ contains(github.ref, 'release') }}
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Check-out
@@ -15,13 +16,16 @@ jobs:
         # with:
         #   ref: develop
         #   fetch-depth: 0
-      - name: 🧬 Extract branch name
+      - name: 🧬 Extract release info
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" \
+          echo "##[set-output name=version;]$(echo $(echo GITHUB_REF | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+'))"
         id: extract_branch
       - name: 🧩 Update changelog
         uses: heinrichreimer/github-changelog-generator-action@v2.1.1
         with:
+          future-release: ${{ steps.extract_branch.outputs.version }}
           token: ${{ secrets.GITHUB_TOKEN }}
           releaseBranch: develop
           pullRequests: true
@@ -32,7 +36,7 @@ jobs:
           removedLabel: "**🗑Removed:**"
           securityLabel: "**🛡Security:**"
           addSections: '{"dependencies":{"prefix":"**🕸Dependencies:**","labels":["dependencies"]}}'
-      - name: 📨 Create pull request
+      - name: 📨 Create pull request for changelog update
         uses: peter-evans/create-pull-request@v3
         with:
           path: CHANGELOG.md
