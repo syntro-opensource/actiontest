@@ -11,17 +11,17 @@ jobs:
     if: ${{ contains(github.ref, 'release') }}
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Check-out
-        uses: actions/checkout@v2
-        # with:
-        #   ref: develop
-        #   fetch-depth: 0
       - name: 🧬 Extract release info
         shell: bash
         run: |
           echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" \
           echo "##[set-output name=version;]$(echo $(echo GITHUB_REF | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+'))"
         id: extract_branch
+      - name: 📥 Check-out
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.extract_branch.outputs.branch }}
+          fetch-depth: 0
       - name: 🧩 Update changelog
         uses: heinrichreimer/github-changelog-generator-action@v2.1.1
         with:
@@ -39,11 +39,11 @@ jobs:
       - name: 📨 Create pull request for changelog update
         uses: peter-evans/create-pull-request@v3
         with:
-          path: CHANGELOG.md
           delete-branch: true
           title: Update Changelog
           assignees: ${{ github.actor }}
           labels: nolog
+        
       # - env:
       #     BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
       #   run: echo "$BRANCH_NAME"
@@ -61,11 +61,11 @@ jobs:
       #     securityLabel: "**🛡Security:**"
       #     addSections: '{"dependencies":{"prefix":"**🕸Dependencies:**","labels":["dependencies"]}}'
 
-      # - name: Create Pull Request to Master
-      #   uses: peter-evans/create-pull-request@v3
-      #   with:
-      #     base: master
-      #     branch: ${{ GITHUB_HEAD_REF }}
+      - name: 📨 Create Pull Request to Master
+        uses: peter-evans/create-pull-request@v3
+        with:
+          base: master
+          branch: ${{ steps.extract_branch.outputs.branch }}
       # - name: Create Pull Request to Develop
       #   uses: peter-evans/create-pull-request@v3
       #   with:
