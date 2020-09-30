@@ -1,41 +1,49 @@
 name: Release Assistant
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: The version to release
-        required: true
+  push:
+    branches:
+      - release/*
+      - hotfix/*
 
 jobs:
   preprelease:
-    name: prepare release
+    name: prepare release branch
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: 8BitJonny/gh-get-current-pr@v1
+        id: PR
         with:
-          ref: develop
-          fetch-depth: 0
-      - name: Regenerate Changelog
-        uses: heinrichreimer/github-changelog-generator-action@v2.1.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          releaseBranch: master
-          pullRequests: true
-          breakingLabel: "**💥Breaking:**"
-          enhancementLabel: "**🍰Enhancements:**"
-          bugsLabel: "**🐞Bugs:**"
-          deprecatedLabel: "**💀Deprecated:**"
-          removedLabel: "**🗑Removed:**"
-          securityLabel: "**🛡Security:**"
-          addSections: '{"dependencies":{"prefix":"**🕸Dependencies:**","labels":["dependencies"]}}'
-      - name: Create Pull Request to Master
-        uses: peter-evans/create-pull-request@v3
-        with:
-          branch: release/${{ github.event.inputs.tag }}
-          base: develop
-      - name: Create Pull Request to Develop
-        uses: peter-evans/create-pull-request@v3
-        with:
-          branch: release/${{ github.event.inputs.tag }}
-          base: master
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Only return if PR is still open
+          filterOutClosed: true
+      - run: echo "Your PR is ${prNumber} and its JSON is ${prJSON}"
+        if: success() && steps.PR.outputs.number
+        env:
+          prNumber: ${{ steps.PR.outputs.number }}
+          # JSON object with the full PR object
+          prJSON: ${{ steps.PR.outputs.pr }
+      # - name: Regenerate Changelog
+      #   uses: heinrichreimer/github-changelog-generator-action@v2.1.1
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     releaseBranch: master
+      #     pullRequests: true
+      #     breakingLabel: "**💥Breaking:**"
+      #     enhancementLabel: "**🍰Enhancements:**"
+      #     bugsLabel: "**🐞Bugs:**"
+      #     deprecatedLabel: "**💀Deprecated:**"
+      #     removedLabel: "**🗑Removed:**"
+      #     securityLabel: "**🛡Security:**"
+      #     addSections: '{"dependencies":{"prefix":"**🕸Dependencies:**","labels":["dependencies"]}}'
+      # - name: Create Pull Request to Master
+      #   uses: peter-evans/create-pull-request@v3
+      #   with:
+      #     branch: release/${{ github.event.inputs.tag }}
+      #     base: develop
+      # - name: Create Pull Request to Develop
+      #   uses: peter-evans/create-pull-request@v3
+      #   with:
+      #     branch: release/${{ github.event.inputs.tag }}
+      #     base: master
