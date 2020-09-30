@@ -20,7 +20,7 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
       - env:
-          BRANCH_NAME: ${{ extract_branch.outputs.branch }}
+          BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
         run: echo "$BRANCH_NAME"
       # - name: Regenerate Changelog
       #   uses: heinrichreimer/github-changelog-generator-action@v2.1.1
