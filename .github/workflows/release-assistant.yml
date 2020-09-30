@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - release/*
-      - hotfix/*
 
 jobs:
   preprelease:
@@ -20,10 +19,27 @@ jobs:
         shell: bash
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
-      - name: 📨 Create pull request
-        uses: thomaseizinger/create-pull-request@1.0.0
+      - name: 🧩 Update changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.1.1
         with:
-          base: master
+          token: ${{ secrets.GITHUB_TOKEN }}
+          releaseBranch: develop
+          pullRequests: true
+          breakingLabel: "**💥Breaking:**"
+          enhancementLabel: "**🍰Enhancements:**"
+          bugsLabel: "**🐞Bugs:**"
+          deprecatedLabel: "**💀Deprecated:**"
+          removedLabel: "**🗑Removed:**"
+          securityLabel: "**🛡Security:**"
+          addSections: '{"dependencies":{"prefix":"**🕸Dependencies:**","labels":["dependencies"]}}'
+      - name: 📨 Create pull request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          path: CHANGELOG.md
+          delete-branch: true
+          title: Update Changelog
+          assignees: ${{ github.actor }}
+          labels: nolog
       # - env:
       #     BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
       #   run: echo "$BRANCH_NAME"
