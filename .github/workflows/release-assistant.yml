@@ -33,9 +33,9 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           branch: release/${{ github.event.inputs.tag }}
+          base: develop
+      - name: Create Pull Request to Develop
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: release/${{ github.event.inputs.tag }}
           base: master
-      # - name: Create Pull Request to Develop
-      #   uses: peter-evans/create-pull-request@v3
-      #   with:
-      #     branch: release/${{ github.event.inputs.tag }}
-      #     base: develop
