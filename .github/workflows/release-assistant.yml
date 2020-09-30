@@ -15,6 +15,13 @@ jobs:
         # with:
         #   ref: develop
         #   fetch-depth: 0
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - env:
+          BRANCH_NAME: ${{ extract_branch.outputs.branch }}
+        run: echo "$BRANCH_NAME"
       # - name: Regenerate Changelog
       #   uses: heinrichreimer/github-changelog-generator-action@v2.1.1
       #   with:
@@ -28,11 +35,12 @@ jobs:
       #     removedLabel: "**🗑Removed:**"
       #     securityLabel: "**🛡Security:**"
       #     addSections: '{"dependencies":{"prefix":"**🕸Dependencies:**","labels":["dependencies"]}}'
-      - name: Create Pull Request to Master
-        uses: peter-evans/create-pull-request@v3
-        with:
-          base: master
-          branch: ${{ GITHUB_HEAD_REF }}
+      
+      # - name: Create Pull Request to Master
+      #   uses: peter-evans/create-pull-request@v3
+      #   with:
+      #     base: master
+      #     branch: ${{ GITHUB_HEAD_REF }}
       # - name: Create Pull Request to Develop
       #   uses: peter-evans/create-pull-request@v3
       #   with:
