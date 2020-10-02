@@ -23,10 +23,12 @@ jobs:
           ref: ${{ steps.extract_branch.outputs.branch }}
           fetch-depth: 0
       - name: 🧩 Update Changelog
+        env:
+          RELEASE_TAG: ${{ steps.extract_branch.outputs.version }}
         run: |
           curl -o git-chglog -L https://github.com/git-chglog/git-chglog/releases/download/0.9.1/git-chglog_linux_amd64
           chmod u+x git-chglog
-          ./git-chglog -o CHANGELOG.md
+          ./git-chglog -o CHANGELOG.md --next-tag $RELEASE_TAG
           rm git-chglog
       - name: 📨 Create pull request for changelog update
         uses: peter-evans/create-pull-request@v3
@@ -34,3 +36,4 @@ jobs:
           delete-branch: true
           title: Update Changelog
           assignees: ${{ github.actor }}
+          labels: nolog
