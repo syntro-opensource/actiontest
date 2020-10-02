@@ -22,52 +22,15 @@ jobs:
         with:
           ref: ${{ steps.extract_branch.outputs.branch }}
           fetch-depth: 0
-      - name: 🧩 Update changelog
-        uses: heinrichreimer/github-changelog-generator-action@v2.1.1
-        with:
-          future-release: ${{ steps.extract_branch.outputs.version }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          releaseBranch: develop
-          pullRequests: true
-          breakingLabel: "**💥Breaking:**"
-          enhancementLabel: "**🍰Enhancements:**"
-          bugsLabel: "**🐞Bugs:**"
-          deprecatedLabel: "**💀Deprecated:**"
-          removedLabel: "**🗑Removed:**"
-          securityLabel: "**🛡Security:**"
-          addSections: '{"dependencies":{"prefix":"**🕸Dependencies:**","labels":["dependencies"]}}'
+      - name: 🧩 Update Changelog
+        run: |
+          curl -o git-chglog -L https://github.com/git-chglog/git-chglog/releases/download/0.9.1/git-chglog_linux_amd64
+          chmod u+x git-chglog
+          ./git-chglog -o CHANGELOG.md
+          rm git-chglog
       - name: 📨 Create pull request for changelog update
         uses: peter-evans/create-pull-request@v3
         with:
           delete-branch: true
           title: Update Changelog
           assignees: ${{ github.actor }}
-          labels: nolog
-        
-      # - env:
-      #     BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
-      #   run: echo "$BRANCH_NAME"
-      # - name: Regenerate Changelog
-      #   uses: heinrichreimer/github-changelog-generator-action@v2.1.1
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     releaseBranch: master
-      #     pullRequests: true
-      #     breakingLabel: "**💥Breaking:**"
-      #     enhancementLabel: "**🍰Enhancements:**"
-      #     bugsLabel: "**🐞Bugs:**"
-      #     deprecatedLabel: "**💀Deprecated:**"
-      #     removedLabel: "**🗑Removed:**"
-      #     securityLabel: "**🛡Security:**"
-      #     addSections: '{"dependencies":{"prefix":"**🕸Dependencies:**","labels":["dependencies"]}}'
-
-      - name: 📨 Create Pull Request to Master
-        uses: peter-evans/create-pull-request@v3
-        with:
-          base: master
-          branch: ${{ steps.extract_branch.outputs.branch }}
-      # - name: Create Pull Request to Develop
-      #   uses: peter-evans/create-pull-request@v3
-      #   with:
-      #     branch: release/${{ github.event.inputs.tag }}
-      #     base: master
